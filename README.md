@@ -12,7 +12,7 @@ To create a Spotify playlist app that allows you to add songs to a shared playli
 
 As a HOST i have the ability to create a playlist, label it and share the link for others to add songs
 
-As a USER i can add songs to a playlist that has been shared with me. 
+As a USER i can add songs to a playlist that has been shared with me. This becomes a QUEUE 
 
 As a USER i can up/down vote songs that are already on the playlist. This will adjust the song position on the list in ascending order.
 
@@ -27,4 +27,4 @@ As a HOST i should have the ability to skip a song or mute a member of the party
 | -------------  | -------------  |
 | host           | create         |
 | user           | upVote/downVote|
-| playlist       |                |
+| queue/playlist |                |
