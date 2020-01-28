@@ -1,0 +1,25 @@
+{
+  "name": "kick-it",
+  "version": "1.0.0",
+  "description": "a spotify party playlist tool",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "keywords": [
+    "spotify",
+    "api",
+    "spotify",
+    "playlist"
+  ],
+  "author": "Melanie Rogan",
+  "license": "MIT",
+  "devDependencies": {
+    "mocha": "^7.0.1",
+    "sinon": "^8.1.1",
+    "supertest": "^4.0.2"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}

@@ -1,0 +1,10 @@
+node_modules/*
+bower_components/*
+.vscode/*
+*.env*
+coverage/*
+*public/*
+package-lock.json
+.DS_Store*
+.idea/
+/.idea/
