@@ -1,6 +1,6 @@
 # kick-it
 
-Can I kick it? Yes you can (as soon as this project is ready anyway)
+Can I kick it? If you can oauth via Spotify, yes you can
 
 
 ## Aims
