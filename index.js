@@ -1,5 +1,6 @@
 require('dotenv').config({ silent: true });
 const express = require('express');
+const session = require('express-session');
 const bodyParser = require('body-parser');
 const exphbs = require('express-handlebars');
 const app = express();
@@ -18,24 +19,25 @@ passport.use(
 			// User.findOrCreate({ spotifyId: profile.id }, function(err, user) {
 			// 	return done(err, user);
 			// });
-			console.log(profile, 'what????');
+			// console.log(profile, 'what????');
 			return done(null, profile);
 		},
 	),
 );
 
+app.use(
+	session({ secret: 'keyboard cat', resave: true, saveUninitialized: true }),
+);
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 passport.serializeUser(function(user, done) {
-	done(null, user.id);
+	done(null, user);
 });
 
-passport.deserializeUser(function(id, done) {
-	User.findById(id, function(err, user) {
-		done(err, user);
-	});
+passport.deserializeUser(function(obj, done) {
+	done(null, obj);
 });
 
 app.set('view engine', '.html');
@@ -54,16 +56,26 @@ app.get('/__gtg', function(req, res) {
 });
 
 app.get('/', function(req, res) {
-	res.render('index', { title: 'kick-it login' });
+	// res.render('index', { title: 'kick-it login', user: req.user });
+	res.render('index.html', { user: req.user });
 });
 
-app.get('/auth/spotify', passport.authenticate('spotify', { session: false }));
+app.get(
+	'/auth/spotify',
+	passport.authenticate('spotify', {
+		scope: ['user-read-email', 'user-read-private'],
+		showDialog: true,
+	}),
+);
 
 app.get(
 	'/auth/spotify/callback',
-	passport.authenticate('spotify', { failureRedirect: '/fail' }),
+	passport.authenticate('spotify', {
+		failureRedirect: '/fail',
+	}),
 	function(req, res) {
 		// Successful authentication, redirect home.
+
 		res.redirect('/');
 	},
 );
@@ -72,5 +84,12 @@ const server = app.listen(app.get('port'), () => {
 	const port = server.address().port;
 	console.log('Magic happens on port ' + port);
 });
+
+function ensureAuthenticated(req, res, next) {
+	if (req.isAuthenticated()) {
+		return next();
+	}
+	res.redirect('/login');
+}
 
 module.exports = app;
