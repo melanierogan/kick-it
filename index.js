@@ -57,7 +57,6 @@ app.get('/__gtg', function(req, res) {
 app.get('/', function(req, res) {
 	// res.render('index', { title: 'kick-it login', user: req.user });
 	console.log(req.user, '<--- this is you wot m8?');
-	console.log(req.photos, 'images');
 	res.render('index.html', { user: req.user });
 });
 
