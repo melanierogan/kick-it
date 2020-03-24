@@ -81,7 +81,11 @@ app.get('/__gtg', function(req, res) {
 	});
 });
 
-app.get('/', async function(req, res) {
+app.get('/', function(req, res) {
+	res.render('hello.html');
+});
+
+app.get('/kicking-it', async function(req, res) {
 	console.log(req.session, 'a session object');
 	// Set the credentials when making the request
 	const spotifyApi = new SpotifyWebApi({
@@ -146,14 +150,9 @@ app.get(
 	function(req, res) {
 		// Successful authentication, redirect home.
 
-		res.redirect('/');
+		res.redirect('/kicking-it');
 	},
 );
-
-const server = app.listen(app.get('port'), () => {
-	const port = server.address().port;
-	console.log('Magic happens on port ' + port);
-});
 
 function ensureAuthenticated(req, res, next) {
 	if (req.isAuthenticated()) {
