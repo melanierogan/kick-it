@@ -1,11 +1,23 @@
 <h1>Can I kick it?</h1>
 {{#if user.username}}
 <h2>Yes you can, {{{ user.username }}}.</h2>
+<p>{{{ user.product }}}</p>
 <div class="text-center">
-  <img src="{{{ user.photos }}}" class="img-thumbnail rounded p-3" alt="user photo">
+	<img
+		src="{{{ user.photos }}}"
+		class="img-thumbnail rounded p-3"
+		alt="user photo"
+	/>
+</div>
+<h2>Here is some image fun</h2>
+<p>{{{ playlistsName }}}</p>
+<div class="text-center">
+	<img
+		src="{{{ playlistsImage }}}"
+		class="img-thumbnail rounded p-3"
+		alt="playlist photo"
+	/>
 </div>
 {{else}}
 <h2>No, no you can't.</h2>
 {{/if}}
-
-

@@ -1,28 +1,20 @@
-const fetch = require('node-fetch');
+// Set the credentials when making the request
+var spotifyApi = new SpotifyWebApi({
+	accessToken: 'njd9wng4d0ycwnn3g4d1jm30yig4d27iom5lg4d3',
+});
 
-const getSpotifySongs = async (req, res) => {
-	try {
-		const response = await fetch('https://', {
-			method: 'GET',
-		});
-
-		if (response.status === 404) {
-			console.log('error 404');
-			throw new Error('unauthorised');
-		}
-
-		if (response.status >= 500) {
-			console.log('error 500');
-			throw new Error('internal error');
-		}
-
-		if (response.status === 200) {
-			const json = await response.json();
-			console.log(json);
-		}
-	} catch (error) {
-		console.log(error);
-	}
-};
-
-module.exports = getSpotifySongs;
+// Get tracks in a playlist
+api
+	.getPlaylistTracks('thelinmichael', '3ktAYNcRHpazJ9qecm3ptn', {
+		offset: 1,
+		limit: 5,
+		fields: 'items',
+	})
+	.then(
+		function (data) {
+			console.log('The playlist contains these tracks', data.body);
+		},
+		function (err) {
+			console.log('Something went wrong!', err);
+		},
+	);
