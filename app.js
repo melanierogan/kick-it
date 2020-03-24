@@ -44,7 +44,7 @@ app.use(
 		resave: true,
 		saveUninitialized: true,
 		store: new MongoStore({
-			url: process.env.MONGODB_URL || 'mongodb://localhost:27017/kick-it',
+			url: process.env.MONGODB_URI || 'mongodb://localhost:27017/kick-it',
 		}),
 	}),
 );
