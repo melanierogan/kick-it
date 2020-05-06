@@ -12,8 +12,8 @@
 </div>
 </div>
 
-<div>
-	<h2>Your most recent playlist</h2>
+<div class="p-3">
+	<h3>The party starts here:</h3>
 <p>{{{ playlistsName }}}</p>
 <div class="text-center">
 	<img
@@ -78,8 +78,16 @@
 	};
 
 </script>
+<!-- track.artists[0].name -->
 <div class="container">
-	<div class="row"></div>
+{{#each playlist}}
+<div><p>{{this.track.name }}</p></div>
+<div><p>{{ this.track.artists.name }}</p></div>
+{{/each}}
+</div>
+
+<div class="container">
+		<div class="p-3"><p><i>You'll need to go to your <strong>Spotify Desktop App</strong>, go to devices and select <strong>'kick it'</strong> from devices. Then click play below.</i></p></div>
 	<div class="row">
 		<div class="col"></div>
 		<div class="col p-3"><button type="button" class="btn btn-dark" id="play-it">▷</button></div>

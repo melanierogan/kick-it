@@ -97,21 +97,35 @@ app.get('/kicking-it', async function(req, res) {
 
 	// Get tracks in a playlist
 	const getPlaylists = await spotifyApi.getUserPlaylists(req.user.id);
-	// console.log(
-	// 	'*** playlists ***',
-	// 	getPlaylists.body.items,
-	// 	'*** the playlists ***',
-	// );
+	const getSpecificPlaylist = await spotifyApi.getPlaylist(
+		'1DVLNQ0AoUnf7CkzMXTmLZ',
+	);
+	const testPlaylist = await spotifyApi.getPlaylist('1DVLNQ0AoUnf7CkzMXTmLZ');
+
+	// const {
+	// 	track: {
+	// 		artists: { name },
+	// 	},
+	// } = testPlaylist.body.tracks.items;
+	// console.log(name, 'u wot m8');
+	// console.log(getSpecificPlaylist.body, '<<<<<<<<');
+	console.log(
+		'*** playlists ***',
+		getSpecificPlaylist.body.tracks.items[0].track.artists[0].name,
+		'*** the playlists ***',
+	);
 	// console.log(
 	// 	'*** images ***',
 	// 	getPlaylists.body.items[0].name,
 	// 	'*** the playlists ***',
 	// );
+	// console.log(name, track, 'u wot m8');
 	const getCurrentTrack = await spotifyApi.getMyCurrentPlaybackState({});
 	res.render('index.html', {
 		user: req.user,
-		playlistsName: getPlaylists.body.items[0].name,
-		playlistsImage: getPlaylists.body.items[0].images[0].url,
+		playlistsName: getSpecificPlaylist.body.name,
+		playlistsImage: getSpecificPlaylist.body.images[0].url,
+		playlist: getSpecificPlaylist.body.tracks.items,
 		currentTrack: getCurrentTrack.body.item.name,
 	});
 });
