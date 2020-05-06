@@ -81,10 +81,18 @@
 <!-- track.artists[0].name -->
 <div class="container">
 {{#each playlist}}
-<div><p>{{this.track.name }}</p></div>
-<div><p>{{ this.track.artists.name }}</p></div>
+	<p>{{this.track.name }}</p>
+	{{#each this.track.artists}}
+	<p>by <strong>{{ this.name }}</strong></p>
+	{{/each}}
 {{/each}}
 </div>
+
+<!-- {{#each docs}} // iterating over array, and #each below loops the properties of elements {}
+<li> {{#each this}} </li>
+	 {{this}} // references the property values
+{{/each}}
+{{/each}} -->
 
 <div class="container">
 		<div class="p-3"><p><i>You'll need to go to your <strong>Spotify Desktop App</strong>, go to devices and select <strong>'kick it'</strong> from devices. Then click play below.</i></p></div>
