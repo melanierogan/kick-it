@@ -79,14 +79,33 @@
 
 </script>
 <!-- track.artists[0].name -->
-<div class="container">
+<!-- <div class="container">
 {{#each playlist}}
 	<p>{{this.track.name }}</p>
 	{{#each this.track.artists}}
 	<p>by <strong>{{ this.name }}</strong></p>
 	{{/each}}
 {{/each}}
-</div>
+</div> -->
+
+<table class="table table-striped table-dark">
+  <thead>
+    <tr>
+      <th scope="col">Track Name</th>
+      <th scope="col">Artists</th>
+    </tr>
+  </thead>
+  <tbody>
+		{{#each playlist}}
+    <tr>
+			<td>{{this.track.name }}</td>
+			<td>by {{#each this.track.artists}}
+				<strong>{{ this.name }}</strong>
+				{{/each}}</td>
+		</tr>
+		{{/each}}
+  </tbody>
+</table>
 
 <!-- {{#each docs}} // iterating over array, and #each below loops the properties of elements {}
 <li> {{#each this}} </li>
