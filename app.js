@@ -11,14 +11,13 @@ const exphbs = require('express-handlebars');
 const passport = require('passport');
 const SpotifyStrategy = require('passport-spotify').Strategy;
 
-app.use(express.static('static'));
-
 passport.use(
 	new SpotifyStrategy(
 		{
 			clientID: process.env.CLIENT_ID,
 			clientSecret: process.env.CLIENT_SECRET,
-			callbackURL: process.env.CLIENT_URL,
+			callbackURL:
+				process.env.CLIENT_URL || 'http://localhost:3000/auth/spotify/callback',
 		},
 		function(accessToken, refreshToken, expires_in, profile, done) {
 			// User.findOrCreate({ spotifyId: profile.id }, function(err, user) {
@@ -66,6 +65,7 @@ passport.deserializeUser(function(obj, done) {
 	done(null, obj);
 });
 
+app.use(express.static('static'));
 app.set('view engine', '.html');
 app.set('views', __dirname + '/views');
 app.set('port', process.env.PORT);
