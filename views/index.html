@@ -1,4 +1,5 @@
-<h1>Can I kick it?</h1>
+<div>
+	<h1>Can I kick it?</h1>
 {{#if user.username}}
 <h2>Yes you can, {{{ user.username }}}.</h2>
 <p>{{{ user.product }}}</p>
@@ -9,7 +10,10 @@
 		alt="user photo"
 	/>
 </div>
-<h2>Here is some image fun</h2>
+</div>
+
+<div>
+	<h2>Your most recent playlist</h2>
 <p>{{{ playlistsName }}}</p>
 <div class="text-center">
 	<img
@@ -17,6 +21,70 @@
 		class="img-thumbnail rounded p-3"
 		alt="playlist photo"
 	/>
+</div>
+</div>
+
+
+<!-- for learning -->
+<!-- <script data-access-token="{{ user.accessToken }}">
+	const script = document.querySelector('[data-access-token]');
+	console.log(script.dataset.accessToken);
+</script> -->
+	<!-- // const accessToken = '{{ user.accessToken }}';
+</script> -->
+<script src="https://sdk.scdn.co/spotify-player.js"></script>
+<script data-access-token="{{ user.accessToken }}">
+	const script = document.querySelector('[data-access-token]');
+	console.log(script.dataset.accessToken);
+	window.onSpotifyWebPlaybackSDKReady = () => {
+		const token = script.dataset.accessToken;
+		const player = new Spotify.Player({
+			name: 'kick it!',
+			getOAuthToken: cb => { cb(token); }
+		});
+
+		// Error handling
+		player.addListener('initialization_error', ({ message }) => { console.error(message); });
+		player.addListener('authentication_error', ({ message }) => { console.error(message); });
+		player.addListener('account_error', ({ message }) => { console.error(message); });
+		player.addListener('playback_error', ({ message }) => { console.error(message); });
+
+		// Playback status updates
+		player.addListener('player_state_changed', state => { console.log('player state change', state); });
+
+		// Ready
+		player.addListener('ready', ({ device_id }) => {
+			console.log('Ready with Device ID', device_id);
+		});
+
+		// Not Ready
+		player.addListener('not_ready', ({ device_id }) => {
+			console.log('Device ID has gone offline', device_id);
+		});
+
+		// Connect to the player!
+		player.connect();
+
+		// Play button
+		window.addEventListener("click", function(event) {
+		const button = document.getElementById('play-it');
+    if (event.target == button) {
+			player.togglePlay('spotify:track:3Ti0GdlrotgwsAVBBugv0I').then(() => {
+  		console.log('Toggled playback!');
+		});
+    }
+		});
+
+	};
+
+</script>
+<div class="container">
+	<div class="row"></div>
+	<div class="row">
+		<div class="col"></div>
+		<div class="col p-3"><button type="button" class="btn btn-dark" id="play-it">▷</button></div>
+		<div class="col"></div>
+	</div>
 </div>
 {{else}}
 <h2>No, no you can't.</h2>

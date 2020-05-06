@@ -11,6 +11,8 @@ const exphbs = require('express-handlebars');
 const passport = require('passport');
 const SpotifyStrategy = require('passport-spotify').Strategy;
 
+app.use(express.static('public'));
+
 passport.use(
 	new SpotifyStrategy(
 		{
@@ -137,7 +139,7 @@ app.get('/search', async function(req, res) {
 app.get(
 	'/auth/spotify',
 	passport.authenticate('spotify', {
-		scope: ['user-read-email', 'user-read-private'],
+		scope: ['streaming', 'user-modify-playback-state', 'user-read-email', 'user-read-private', 'user-read-playback-state'],
 		showDialog: true,
 	}),
 );
