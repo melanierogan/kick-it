@@ -24,15 +24,16 @@ passport.use(
 			// 	return done(err, user);
 			// });
 			const { provider, id, username, photos, product } = profile;
-			console.log(accessToken, 'this is what an access token looks like');
-			console.log(
-				provider,
-				id,
-				username,
-				photos,
-				product,
-				'deconstructed things',
-			);
+			// console.log(accessToken, 'this is what an access token looks like');
+			// console.log(
+			// 	provider,
+			// 	id,
+			// 	username,
+			// 	photos,
+			// 	product,
+			// 	currently_playing,
+			// 	'deconstructed things <<<<<<<<<<<<<<',
+			// );
 			profile.accessToken = accessToken;
 			return done(null, profile);
 		},
@@ -88,7 +89,7 @@ app.get('/', function(req, res) {
 });
 
 app.get('/kicking-it', async function(req, res) {
-	console.log(req.session, 'a session object');
+	// console.log(req.session, 'a session object');
 	// Set the credentials when making the request
 	const spotifyApi = new SpotifyWebApi({
 		accessToken: req.user.accessToken,
@@ -106,11 +107,12 @@ app.get('/kicking-it', async function(req, res) {
 	// 	getPlaylists.body.items[0].name,
 	// 	'*** the playlists ***',
 	// );
-
+	const getCurrentTrack = await spotifyApi.getMyCurrentPlaybackState({});
 	res.render('index.html', {
 		user: req.user,
 		playlistsName: getPlaylists.body.items[0].name,
 		playlistsImage: getPlaylists.body.items[0].images[0].url,
+		currentTrack: getCurrentTrack.body.item.name,
 	});
 });
 
@@ -139,7 +141,13 @@ app.get('/search', async function(req, res) {
 app.get(
 	'/auth/spotify',
 	passport.authenticate('spotify', {
-		scope: ['streaming', 'user-modify-playback-state', 'user-read-email', 'user-read-private', 'user-read-playback-state'],
+		scope: [
+			'streaming',
+			'user-modify-playback-state',
+			'user-read-email',
+			'user-read-private',
+			'user-read-playback-state',
+		],
 		showDialog: true,
 	}),
 );
