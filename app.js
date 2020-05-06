@@ -11,7 +11,7 @@ const exphbs = require('express-handlebars');
 const passport = require('passport');
 const SpotifyStrategy = require('passport-spotify').Strategy;
 
-app.use(express.static('public'));
+app.use(express.static('static'));
 
 passport.use(
 	new SpotifyStrategy(
