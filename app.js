@@ -112,6 +112,7 @@ app.get('/kicking-it', async function(req, res) {
 	console.log(
 		'*** playlists ***',
 		getSpecificPlaylist.body.tracks.items[0].track.artists[0].name,
+		getSpecificPlaylist.body.tracks.items[0].added_by.id,
 		'*** the playlists ***',
 	);
 	// console.log(
@@ -120,6 +121,23 @@ app.get('/kicking-it', async function(req, res) {
 	// 	'*** the playlists ***',
 	// );
 	// console.log(name, track, 'u wot m8');
+
+	// Add tracks to a playlist
+	const doThat = () =>
+		spotifyApi
+			.addTracksToPlaylist('5ieJqeLJjjI8iJWaxeBLuK', [
+				'spotify:track:4iV5W9uYEdYUVa79Axb7Rh',
+				'spotify:track:1301WleyT98MSxVHPZCA6M',
+			])
+			.then(
+				function(data) {
+					console.log('Added tracks to playlist!');
+				},
+				function(err) {
+					console.log('Something went wrong!', err);
+				},
+			);
+
 	const getCurrentTrack = await spotifyApi.getMyCurrentPlaybackState({});
 	res.render('index.html', {
 		user: req.user,

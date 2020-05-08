@@ -92,16 +92,20 @@
   <thead>
     <tr>
       <th scope="col">Track Name</th>
-      <th scope="col">Artists</th>
+			<th scope="col">Artists</th>
+			<th scope="col">Added by</th>
     </tr>
   </thead>
   <tbody>
 		{{#each playlist}}
     <tr>
 			<td>{{this.track.name }}</td>
-			<td>by {{#each this.track.artists}}
+			<td>by
+				{{#each this.track.artists}}
 				<strong>{{ this.name }}</strong>
-				{{/each}}</td>
+				{{/each}}
+			</td>
+			<td>{{this.added_by.id}}</td>
 		</tr>
 		{{/each}}
   </tbody>
@@ -121,8 +125,14 @@
 		<div class="col"></div>
 	</div>
 </div>
+
 	<div class="alert alert-info" role="alert">
+		<!-- activate device -->
+		{{#if currentTrack}}
 		<b>now playing: </b>{{{ currentTrack }}}
+		{{else}}
+		<b>select 'kick-it' from devices and play a track</b>
+		{{/if}}
 	</div>
 {{else}}
 <h2>No, no you can't.</h2>
