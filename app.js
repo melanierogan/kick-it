@@ -123,11 +123,10 @@ app.get('/kicking-it', async function(req, res) {
 	// console.log(name, track, 'u wot m8');
 
 	// Add tracks to a playlist
-	const doThat = () =>
-		spotifyApi
-			.addTracksToPlaylist('5ieJqeLJjjI8iJWaxeBLuK', [
-				'spotify:track:4iV5W9uYEdYUVa79Axb7Rh',
-				'spotify:track:1301WleyT98MSxVHPZCA6M',
+	const doThat = async () =>
+		await spotifyApi
+			.addTracksToPlaylist('1DVLNQ0AoUnf7CkzMXTmLZ', [
+				'spotify:track:3Ti0GdlrotgwsAVBBugv0I',
 			])
 			.then(
 				function(data) {
@@ -137,6 +136,8 @@ app.get('/kicking-it', async function(req, res) {
 					console.log('Something went wrong!', err);
 				},
 			);
+	// doThat();
+	// console.log(await doThat(), 'do that thing you do');
 
 	const getCurrentTrack = await spotifyApi.getMyCurrentPlaybackState({});
 	res.render('index.html', {
@@ -144,7 +145,7 @@ app.get('/kicking-it', async function(req, res) {
 		playlistsName: getSpecificPlaylist.body.name,
 		playlistsImage: getSpecificPlaylist.body.images[0].url,
 		playlist: getSpecificPlaylist.body.tracks.items,
-		currentTrack: getCurrentTrack.body.item.name,
+		// currentTrack: getCurrentTrack.body.item.name,
 	});
 });
 
@@ -170,6 +171,22 @@ app.get('/search', async function(req, res) {
 	);
 });
 
+app.post('/search', async function(req, res) {
+	const spotifyApi = new SpotifyWebApi({
+		accessToken: req.user.accessToken,
+	});
+	// Search for a track!
+	spotifyApi.searchTracks('track:Can I Kick It?', { limit: 1 }).then(
+		function(data) {
+			// Send the first (only) track object
+			res.send(data.body.tracks.items[0]);
+		},
+		function(err) {
+			console.error(err);
+		},
+	);
+});
+
 app.get(
 	'/auth/spotify',
 	passport.authenticate('spotify', {
@@ -179,6 +196,11 @@ app.get(
 			'user-read-email',
 			'user-read-private',
 			'user-read-playback-state',
+			'playlist-modify-public',
+			'playlist-modify-private',
+			'playlist-read-private',
+			'playlist-read-collaborative',
+			'app-remote-control',
 		],
 		showDialog: true,
 	}),
