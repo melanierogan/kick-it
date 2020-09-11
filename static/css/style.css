@@ -4,6 +4,23 @@
 	left:50%;
 }
 
+.container-center {
+	margin: auto;
+}
+
+.left-col {
+	float: left;
+	width:25%;
+}
+.center-col {
+	float: left;
+	width: 25%;
+}
+.right-col {
+	float: left;
+	width: 25%;
+}
+
 
 /* // Small devices (landscape phones, 576px and up) */
 @media (min-width: 576px) { }

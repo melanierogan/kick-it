@@ -1,0 +1,18 @@
+<h1>Results:</h1>
+<form action="/add-track" method="get">
+  <div class="form-row align-items-center">
+    <div class="col-auto">
+			<p name="trackname">{{name}}</p>
+			<p name="trackid">{{id}}</p>
+			<input type="hidden" name="trackid" value="{{ id }}">
+    </div>
+    <div class="col-auto">
+			{{#each artists}}
+				<p><strong>{{ this.name }}</strong></p>
+			{{/each}}
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-primary mb-2">Add</button>
+    </div>
+  </div>
+</form>

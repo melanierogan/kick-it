@@ -1,145 +1,266 @@
-<div>
-	<h1>Can I kick it?</h1>
-{{#if user.username}}
-<h2>Yes you can, {{{ user.username }}}.</h2>
-<p>{{{ user.product }}}</p>
-<div class="text-center">
-	<img
-		src="{{{ user.photos }}}"
-		class="img-thumbnail rounded p-3"
-		alt="user photo"
-	/>
-</div>
-</div>
+<div class="container">
+	<div>
+		<h1>Can I kick it?</h1>
+	{{#if user.username}}
+	<h2>Yes you can, {{{ user.username }}}.</h2>
+	<p>{{{ user.product }}}</p>
+	<div class="text-center">
+		<img
+			src="{{{ user.photos }}}"
+			class="img-thumbnail rounded p-3"
+			alt="user photo"
+		/>
+	</div>
+	</div>
+	{{#if playlistsName}}
+	<div class="p-3">
+		<h3>The party starts here:</h3>
+	<p>{{{ playlistsName }}}</p>
+	{{#if playlistsImage}}
+	<div class="text-center">
+		<img
+			src="{{{ playlistsImage }}}"
+			class="img-thumbnail rounded p-3"
+			alt="playlist photo"
+		/>
+	</div>
+	{{/if}}
+	</div>
 
-<div class="p-3">
-	<h3>The party starts here:</h3>
-<p>{{{ playlistsName }}}</p>
-<div class="text-center">
-	<img
-		src="{{{ playlistsImage }}}"
-		class="img-thumbnail rounded p-3"
-		alt="playlist photo"
-	/>
-</div>
-</div>
+
+	<!-- for learning -->
+	<!-- <script data-access-token="{{ user.accessToken }}">
+		const script = document.querySelector('[data-access-token]');
+		console.log(script.dataset.accessToken);
+	</script> -->
+		<!-- // const accessToken = '{{ user.accessToken }}';
+	</script> -->
+	<script src="https://sdk.scdn.co/spotify-player.js"></script>
+	<script data-access-token="{{ user.accessToken }}">
+		const script = document.querySelector('[data-access-token]');
+		// Called when the Spotify Web Playback SDK is ready to use
+		window.onSpotifyWebPlaybackSDKReady = () => {
+			const firstTrack = document.getElementById('track-id').innerHTML;
+			console.log(firstTrack, 'the track mac');
+			const token = script.dataset.accessToken;
+			// Define the Spotify Connect device, getOAuthToken has an actual token
+			// hardcoded for the sake of simplicity
+			var player = new Spotify.Player({
+				name: 'can i kick it',
+				getOAuthToken: callback => {
+					callback(token);
+				},
+				volume: 0.4
+			});
+
+			// Called when connected to the player created beforehand successfully
+			player.addListener('ready', ({ device_id }) => {
+				console.log('Ready with Device ID', device_id);
+				console.log(firstTrack, 'the track mac');
+
+				const play = ({
+					spotify_uri,
+					playerInstance: {
+						_options: {
+							getOAuthToken,
+							id
+						}
+					}
+				}) => {
+					getOAuthToken(access_token => {
+						fetch(`https://api.spotify.com/v1/me/player/play?device_id=${id}`, {
+							method: 'PUT',
+							body: JSON.stringify({ context_uri: 'spotify:playlist:1DVLNQ0AoUnf7CkzMXTmLZ'}),
+							headers: {
+								'Content-Type': 'application/json',
+								'Authorization': `Bearer ${access_token}`
+							},
+						});
+					});
+				};
+
+					// Play button
+					window.addEventListener("click", function(event) {
+					const button = document.getElementById('play-it');
+					const next = document.getElementById('next');
+					const pause = document.getElementById('pause');
+					// // the playlist itself needs to have the song ids hidden in there
+					// // right now just the search has that
+				if (event.target == button) {
+					play({
+					playerInstance: player,
+					spotify_uri: firstTrack,
+				})
+					}
+				if (event.target == next) {
+					player.nextTrack().then(() => {
+				console.log('Skipped to next track!');
+	});
+				}
+				if (event.target == pause) {
+					player.pause().then(() => {
+		console.log('Paused!');
+	});
+				}
+
+					});
+			});
 
 
-<!-- for learning -->
-<!-- <script data-access-token="{{ user.accessToken }}">
-	const script = document.querySelector('[data-access-token]');
-	console.log(script.dataset.accessToken);
-</script> -->
-	<!-- // const accessToken = '{{ user.accessToken }}';
-</script> -->
-<script src="https://sdk.scdn.co/spotify-player.js"></script>
-<script data-access-token="{{ user.accessToken }}">
-	const script = document.querySelector('[data-access-token]');
-	console.log(script.dataset.accessToken);
-	window.onSpotifyWebPlaybackSDKReady = () => {
-		const token = script.dataset.accessToken;
-		const player = new Spotify.Player({
-			name: 'kick it!',
-			getOAuthToken: cb => { cb(token); }
-		});
+			// Connect to the player created beforehand, this is equivalent to
+			// creating a new device which will be visible for Spotify Connect
+			player.connect();
+		};
+	</script>
+	<!-- <script data-access-token="{{ user.accessToken }}">
+		const script = document.querySelector('[data-access-token]');
+		console.log(script.dataset.accessToken);
+		window.onSpotifyWebPlaybackSDKReady = () => {
+			const token = script.dataset.accessToken;
+			const player = new Spotify.Player({
+				name: 'kick it!',
+				getOAuthToken: cb => { cb(token); },
+			});
 
-		// Error handling
-		player.addListener('initialization_error', ({ message }) => { console.error(message); });
-		player.addListener('authentication_error', ({ message }) => { console.error(message); });
-		player.addListener('account_error', ({ message }) => { console.error(message); });
-		player.addListener('playback_error', ({ message }) => { console.error(message); });
+			// Error handling
+			player.addListener('initialization_error', ({ message }) => { console.error(message); });
+			player.addListener('authentication_error', ({ message }) => { console.error(message); });
+			player.addListener('account_error', ({ message }) => { console.error(message); });
+			player.addListener('playback_error', ({ message }) => { console.error(message); });
 
-		// Playback status updates
-		player.addListener('player_state_changed', state => { console.log('player state change', state); });
+			// Playback status updates
+			player.addListener('player_state_changed', state => { console.log('player state change', state); });
 
-		// Ready
-		player.addListener('ready', ({ device_id }) => {
-			console.log('Ready with Device ID', device_id);
-		});
+			// Ready
+			player.addListener('ready', ({ device_id }) => {
+				console.log('Ready with Device ID', device_id);
+			});
 
-		// Not Ready
-		player.addListener('not_ready', ({ device_id }) => {
-			console.log('Device ID has gone offline', device_id);
-		});
+			// Not Ready
+			player.addListener('not_ready', ({ device_id }) => {
+				console.log('Device ID has gone offline', device_id);
+			});
 
-		// Connect to the player!
-		player.connect();
+			// Connect to the player!
+			player.connect();
 
 		// Play button
-		window.addEventListener("click", function(event) {
-		const button = document.getElementById('play-it');
-    if (event.target == button) {
-			player.togglePlay('spotify:track:3Ti0GdlrotgwsAVBBugv0I').then(() => {
-  		console.log('Toggled playback!');
-		});
-    }
-		});
+		// 	window.addEventListener("click", function(event) {
+		// 	const button = document.getElementById('play-it');
+		// 	const firstTrack = document.getElementById('track-id').innerHTML;
+		// 	console.log(firstTrack, 'you what what what >>>>>>>>>>');
+		// 	// // the playlist itself needs to have the song ids hidden in there
+		// 	// // right now just the search has that
+		//  if (event.target == button) {
+		// 	player.togglePlay().then(() => {
+		// 		console.log('Toggled playback!');
+		// 	});
+		//   }
+		// 	});
+		};
 
+		const play = ({
+		spotify_uri,
+		playerInstance: {
+			_options: {
+				getOAuthToken,
+				id
+			}
+		}
+	}) => {
+		getOAuthToken(access_token => {
+			fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device_id}`, {
+				method: 'PUT',
+				body: JSON.stringify({ uris: ['spotify:track:2Cu5ExXidcoE4vF5hIYict'] }),
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`
+				},
+			});
+		});
 	};
 
-</script>
-<!-- track.artists[0].name -->
-<!-- <div class="container">
-{{#each playlist}}
-	<p>{{this.track.name }}</p>
-	{{#each this.track.artists}}
-	<p>by <strong>{{ this.name }}</strong></p>
-	{{/each}}
-{{/each}}
-</div> -->
+	console.log(device_id, 'the id of the thing');
+	console.log(play(), 'play play');
 
-<table class="table table-striped table-dark">
-  <thead>
-    <tr>
-      <th scope="col">Track Name</th>
-			<th scope="col">Artists</th>
-			<th scope="col">Added by</th>
-    </tr>
-  </thead>
-  <tbody>
-		{{#each playlist}}
-    <tr>
-			<td>{{this.track.name }}</td>
-			<td>by
-				{{#each this.track.artists}}
-				<strong>{{ this.name }}</strong>
-				{{/each}}
-			</td>
-			<td>{{this.added_by.id}}</td>
-		</tr>
-		{{/each}}
-  </tbody>
-</table>
+	// play({
+	//   playerInstance: new Spotify.Player({ name: 'kick it!' }),
+	// 	spotify_uri: 'spotify:track:2Cu5ExXidcoE4vF5hIYict',
+	// });
+	// console.log(firstTrack, 'lol lol')
 
-<!-- {{#each docs}} // iterating over array, and #each below loops the properties of elements {}
-<li> {{#each this}} </li>
-	 {{this}} // references the property values
-{{/each}}
-{{/each}} -->
+	// Play a specified track on the Web Playback SDK's device ID
+	// function play(device_id) {
+	//   $.ajax({
+	//    url: "https://api.spotify.com/v1/me/player/play?device_id=" + device_id,
+	//    type: "PUT",
+	//    data: '{"uris": ["spotify:track:5ya2gsaIhTkAuWYEMB0nw5"]}',
+	//    beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer ' + _token );},
+	//    success: function(data) {
+	//      console.log(data)
+	//    }
+	//   });
+	// }
 
-<div class="container">
-		<div class="p-3"><p><i>You'll need to go to your <strong>Spotify Desktop App</strong>, go to devices and select <strong>'kick it'</strong> from devices. Then click play below.</i></p></div>
-	<div class="row">
-		<div class="col"></div>
-		<div class="col p-3"><button type="button" class="btn btn-dark" id="play-it">▷</button></div>
-		<div class="col"></div>
+	</script> -->
+
+	<form action="/create-playlist" method="post">
+		<div class="input-group mb-3">
+			<input type="text" class="form-control" placeholder="playlist name" aria-label="song search" aria-describedby="basic-addon2" name="playlistname">
+			<div class="input-group-append">
+				<button class="btn btn-outline-secondary" type="submit">create</button>
+			</div>
+		</div>
+	</form>
+
+	<table class="table table-striped table-dark">
+		<thead>
+			<tr>
+				<th scope="col">Track Name</th>
+				<th scope="col">Artists</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#each playlist}}
+			<tr>
+				<td>{{this.track.name}}</td>
+				<td>by
+					{{#each this.track.artists}}
+					<strong>{{this.name}}</strong>
+					{{/each}}
+				</td>
+			</tr>
+			<tr style="visibility: hidden;">
+				<td>{{this.added_by.id}}</td>
+				<td style="visibility: hidden;" id="track-id">{{this.track.uri}}</td>
+			</tr>
+			{{/each}}
+		</tbody>
+	</table>
+	{{else}}
+	{{/if}}
+	<div class="container-center text-center">
+		<div class="left-col"><button type="button" class="btn btn-dark" id="play-it">▷</button></div>
+		<div class="center-col"><button type="button" class="btn btn-dark" id="next">⏭️</button></div>
+		<div class="right-col"><button type="button" class="btn btn-dark" id="pause">⏸️</button></div>
 	</div>
-</div>
-<div class="input-group mb-3">
-  <input type="text" class="form-control" placeholder="song name" aria-label="song search" aria-describedby="basic-addon2">
-  <div class="input-group-append">
-    <button class="btn btn-outline-secondary" type="button">Search</button>
-  </div>
-</div>
+	<p><i>You'll need to go to your <strong>Spotify Desktop App</strong>, go to devices and select <strong>'kick it'</strong> from devices. Then click play below.</i></p>
+	{{> search-form }}
+	{{#if result}}
+	{{> results-partial }}
+	{{else}}
+	{{/if}}
 
-	<div class="alert alert-info" role="alert">
-		<!-- activate device -->
-		{{#if currentTrack}}
-		<b>now playing: </b>{{{ currentTrack }}}
-		{{else}}
-		<b>select 'kick-it' from devices and play a track</b>
-		{{/if}}
-	</div>
-{{else}}
-<h2>No, no you can't.</h2>
-{{/if}}
+		<div class="alert alert-info" role="alert">
+			<!-- activate device -->
+			{{#if currentTrack}}
+			<b>now playing: </b>{{{ currentTrack }}}
+			{{else}}
+			<b>select 'kick-it' from devices and play a track</b>
+			{{/if}}
+		</div>
+	{{else}}
+	<h2>No, no you can't.</h2>
+	{{/if}}
+
+</div>

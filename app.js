@@ -24,17 +24,8 @@ passport.use(
 			// 	return done(err, user);
 			// });
 			const { provider, id, username, photos, product } = profile;
-			// console.log(accessToken, 'this is what an access token looks like');
-			// console.log(
-			// 	provider,
-			// 	id,
-			// 	username,
-			// 	photos,
-			// 	product,
-			// 	currently_playing,
-			// 	'deconstructed things <<<<<<<<<<<<<<',
-			// );
 			profile.accessToken = accessToken;
+			profile.id = id;
 			return done(null, profile);
 		},
 	),
@@ -47,6 +38,7 @@ app.use(
 		saveUninitialized: true,
 		store: new MongoStore({
 			url: process.env.MONGODB_URI || 'mongodb://localhost:27017/kick-it',
+			useUnifiedTopology: true,
 		}),
 	}),
 );
@@ -89,81 +81,77 @@ app.get('/', function(req, res) {
 });
 
 app.get('/kicking-it', async function(req, res) {
-	// console.log(req.session, 'a session object');
-	// Set the credentials when making the request
 	const spotifyApi = new SpotifyWebApi({
 		accessToken: req.user.accessToken,
+		user: req.user,
 	});
 
 	// Get tracks in a playlist
-	const getPlaylists = await spotifyApi.getUserPlaylists(req.user.id);
+	// const getPlaylists = await spotifyApi.getUserPlaylists(req.user.id);
+
 	const getSpecificPlaylist = await spotifyApi.getPlaylist(
-		'1DVLNQ0AoUnf7CkzMXTmLZ',
+		req.session.playlistID || '1DVLNQ0AoUnf7CkzMXTmLZ',
 	);
-	const testPlaylist = await spotifyApi.getPlaylist('1DVLNQ0AoUnf7CkzMXTmLZ');
-
-	// const {
-	// 	track: {
-	// 		artists: { name },
-	// 	},
-	// } = testPlaylist.body.tracks.items;
-	// console.log(name, 'u wot m8');
-	// console.log(getSpecificPlaylist.body, '<<<<<<<<');
-	console.log(
-		'*** playlists ***',
-		getSpecificPlaylist.body.tracks.items[0].track.artists[0].name,
-		getSpecificPlaylist.body.tracks.items[0].added_by.id,
-		'*** the playlists ***',
-	);
-	// console.log(
-	// 	'*** images ***',
-	// 	getPlaylists.body.items[0].name,
-	// 	'*** the playlists ***',
-	// );
-	// console.log(name, track, 'u wot m8');
-
-	// Add tracks to a playlist
-	const doThat = async () =>
-		await spotifyApi
-			.addTracksToPlaylist('1DVLNQ0AoUnf7CkzMXTmLZ', [
-				'spotify:track:3Ti0GdlrotgwsAVBBugv0I',
-			])
-			.then(
-				function(data) {
-					console.log('Added tracks to playlist!');
-				},
-				function(err) {
-					console.log('Something went wrong!', err);
-				},
-			);
-	// doThat();
-	// console.log(await doThat(), 'do that thing you do');
+	// console.log(getSpecificPlaylist.body.tracks.items, 'what what');
 
 	const getCurrentTrack = await spotifyApi.getMyCurrentPlaybackState({});
 	res.render('index.html', {
 		user: req.user,
 		playlistsName: getSpecificPlaylist.body.name,
-		playlistsImage: getSpecificPlaylist.body.images[0].url,
+		// turnary or otherwise if image show it if not default image
+		// playlistsImage: getSpecificPlaylist.body.images[0].url,
 		playlist: getSpecificPlaylist.body.tracks.items,
 		// currentTrack: getCurrentTrack.body.item.name,
 	});
 });
 
-app.post('things', function(req, res) {
-	res.render('index.html', {
-		user: req.user,
+app.post('/create-playlist', async function(req, res) {
+	const spotifyApi = new SpotifyWebApi({
+		accessToken: req.user.accessToken,
+		user: req.user.id,
 	});
+	const playlistName = req.body.playlistname;
+	// if we have an id we use it otherwise a default
+	console.log(playlistName);
+	// the user cannot be hardcoded really but i need to pass this value through correctly as it is coming up as undefined
+	spotifyApi.createPlaylist('roganmc', playlistName, { public: true }).then(
+		function(data) {
+			console.log(data.body.id, 'test a thing');
+			console.log('Created playlist!');
+			const playlistID = data.body.id;
+			req.session.playlistID = playlistID;
+			console.log(playlistID, 'that is a thing ok');
+			res.redirect('/kicking-it');
+		},
+		function(err) {
+			console.log('Something went wrong with creating a playlist', err);
+		},
+	);
 });
 
 app.get('/search', async function(req, res) {
 	const spotifyApi = new SpotifyWebApi({
 		accessToken: req.user.accessToken,
+		user: req.user,
 	});
+	let result = false;
+	const searchQuery = req.query['search-query'];
 	// Search for a track!
-	spotifyApi.searchTracks('track:Can I Kick It?', { limit: 1 }).then(
+	// why you no give me more results
+	spotifyApi.searchTracks(`track:${searchQuery}`, { limit: 1 }).then(
 		function(data) {
-			// Send the first (only) track object
-			res.send(data.body.tracks.items[0]);
+			const name = data.body.tracks.items[0].name;
+			const id = data.body.tracks.items[0].uri;
+			const { images, artists } = data.body.tracks.items[0].album;
+			let result = true;
+			res.render('index', {
+				name,
+				id,
+				images,
+				artists,
+				result,
+				user: req.user,
+			});
 		},
 		function(err) {
 			console.error(err);
@@ -171,21 +159,52 @@ app.get('/search', async function(req, res) {
 	);
 });
 
-app.post('/search', async function(req, res) {
+app.get('/add-track', async function(req, res) {
 	const spotifyApi = new SpotifyWebApi({
 		accessToken: req.user.accessToken,
+		user: req.user,
 	});
-	// Search for a track!
-	spotifyApi.searchTracks('track:Can I Kick It?', { limit: 1 }).then(
-		function(data) {
-			// Send the first (only) track object
-			res.send(data.body.tracks.items[0]);
-		},
-		function(err) {
-			console.error(err);
-		},
-	);
+	const playlistName = req.session.playlistID;
+	const trackId = req.query.trackid;
+	console.log(trackId, 'this is a track id');
+	console.log(playlistName, 'this is a playlist');
+	const tryThat = `'spotify:track:${trackId}'`;
+	console.log(tryThat, 'what what what');
+	await spotifyApi
+		.addTracksToPlaylist(playlistName, [trackId])
+		// .addTracksToPlaylist('3UtOTelJf1tM6HRpHvFRhh', [
+		// 	'spotify:track:6I9VzXrHxO9rA9A5euc8Ak',
+		// ])
+		.then(
+			function(data) {
+				console.log('Added tracks to playlist!');
+			},
+			function(err) {
+				console.log('Something went wrong when adding track to playlist!', err);
+			},
+		);
+	res.redirect('/kicking-it');
 });
+
+// things to do
+// make multiple results come back in the view for search results
+// make default image appear for playlist if it doesn't have an image
+// move or change how create playlist appears as the first view
+// get play button to play current playlist
+
+// work on host vs party goer view
+// host can 'start part' and create a playlist, party goers can search and add tracks
+// party goers can vote up or down a certain number of times
+// host can delete songs or reorder at any point
+// host can disable adding songs at any point
+// host can disable voting at any point
+
+// leader board would show whose songs are getting those most votes
+// leader board shows what is a popular song
+
+// power-ups can be enabled
+// kick it means you get to move any song to top of the queue
+
 
 app.get(
 	'/auth/spotify',
