@@ -27,14 +27,6 @@
 	{{/if}}
 	</div>
 
-
-	<!-- for learning -->
-	<!-- <script data-access-token="{{ user.accessToken }}">
-		const script = document.querySelector('[data-access-token]');
-		console.log(script.dataset.accessToken);
-	</script> -->
-		<!-- // const accessToken = '{{ user.accessToken }}';
-	</script> -->
 	<script src="https://sdk.scdn.co/spotify-player.js"></script>
 	<script data-access-token="{{ user.accessToken }}">
 		const script = document.querySelector('[data-access-token]');
@@ -153,7 +145,10 @@
 		<div class="center-col"><button type="button" class="btn btn-dark" id="next">⏭️</button></div>
 		<div class="right-col"><button type="button" class="btn btn-dark" id="pause">⏸️</button></div>
 	</div>
-	<p><i>You'll need to go to your <strong>Spotify Desktop App</strong>, go to devices and select <strong>'kick it'</strong> from devices. Then click play below.</i></p>
+	<div class="container-center text-center">
+		<p><i>You'll need to go to your <strong>Spotify Desktop App</strong>, go to devices and select <strong>'kick it'</strong> from devices. Then click play below.</i></p>
+	</div>
+
 	{{> search-form }}
 	{{#if result}}
 	{{> results-partial }}
