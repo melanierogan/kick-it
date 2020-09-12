@@ -10,6 +10,7 @@ const bodyParser = require('body-parser');
 const exphbs = require('express-handlebars');
 const passport = require('passport');
 const SpotifyStrategy = require('passport-spotify').Strategy;
+const nofavicon = require('express-no-favicons');
 
 passport.use(
 	new SpotifyStrategy(
@@ -42,6 +43,7 @@ app.use(
 		}),
 	}),
 );
+app.use(nofavicon());
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(
@@ -49,6 +51,14 @@ app.use(
 		extended: true,
 	}),
 );
+
+const ignoreFavicon = (req, res, next) => {
+	if (req.originalUrl === '/favicon.ico') {
+		res.status(204).json({ nope: true });
+	} else {
+		next();
+	}
+};
 
 passport.serializeUser(function(user, done) {
 	done(null, user);
@@ -59,6 +69,7 @@ passport.deserializeUser(function(obj, done) {
 });
 
 app.use(express.static('static'));
+app.use(ignoreFavicon);
 app.set('view engine', '.html');
 app.set('views', __dirname + '/views');
 app.set('port', process.env.PORT);
@@ -80,6 +91,10 @@ app.get('/', function(req, res) {
 	res.render('hello.html');
 });
 
+// app.get('/:party_id/:user_id', function(req, res) {
+// 	res.render('hello.html');
+// });
+
 app.get('/kicking-it', async function(req, res) {
 	const spotifyApi = new SpotifyWebApi({
 		accessToken: req.user.accessToken,
@@ -92,14 +107,17 @@ app.get('/kicking-it', async function(req, res) {
 	const getSpecificPlaylist = await spotifyApi.getPlaylist(
 		req.session.playlistID || '1DVLNQ0AoUnf7CkzMXTmLZ',
 	);
-	// console.log(getSpecificPlaylist.body.tracks.items, 'what what');
-
+	console.log(req.session.playlistID, 'why wont you');
 	const getCurrentTrack = await spotifyApi.getMyCurrentPlaybackState({});
+	console.log(getSpecificPlaylist.body.tracks.items, 'what we got?');
 	res.render('index.html', {
 		user: req.user,
-		playlistsName: getSpecificPlaylist.body.name,
+		playlistID: getSpecificPlaylist.body.uri,
 		// turnary or otherwise if image show it if not default image
-		// playlistsImage: getSpecificPlaylist.body.images[0].url,
+		playlistsName: getSpecificPlaylist.body.name,
+		playlistsImage: getSpecificPlaylist.body.images[0]
+			? getSpecificPlaylist.body.images[0].url
+			: 'https://via.placeholder.com/550',
 		playlist: getSpecificPlaylist.body.tracks.items,
 		// currentTrack: getCurrentTrack.body.item.name,
 	});
@@ -112,7 +130,7 @@ app.post('/create-playlist', async function(req, res) {
 	});
 	const playlistName = req.body.playlistname;
 	// if we have an id we use it otherwise a default
-	console.log(playlistName);
+	console.log(playlistName, 'sdfsdfsdfsdfsdfsdfsdf');
 	// the user cannot be hardcoded really but i need to pass this value through correctly as it is coming up as undefined
 	spotifyApi.createPlaylist('roganmc', playlistName, { public: true }).then(
 		function(data) {
@@ -164,25 +182,21 @@ app.get('/add-track', async function(req, res) {
 		accessToken: req.user.accessToken,
 		user: req.user,
 	});
-	const playlistName = req.session.playlistID;
+
+	console.log(req.body, 'what now');
 	const trackId = req.query.trackid;
 	console.log(trackId, 'this is a track id');
-	console.log(playlistName, 'this is a playlist');
+	console.log(req.session.playlistID, 'this is a playlist');
 	const tryThat = `'spotify:track:${trackId}'`;
 	console.log(tryThat, 'what what what');
-	await spotifyApi
-		.addTracksToPlaylist(playlistName, [trackId])
-		// .addTracksToPlaylist('3UtOTelJf1tM6HRpHvFRhh', [
-		// 	'spotify:track:6I9VzXrHxO9rA9A5euc8Ak',
-		// ])
-		.then(
-			function(data) {
-				console.log('Added tracks to playlist!');
-			},
-			function(err) {
-				console.log('Something went wrong when adding track to playlist!', err);
-			},
-		);
+	await spotifyApi.addTracksToPlaylist(req.session.playlistID, [trackId]).then(
+		function(data) {
+			console.log('Added tracks to playlist!');
+		},
+		function(err) {
+			console.log('Something went wrong when adding track to playlist!', err);
+		},
+	);
 	res.redirect('/kicking-it');
 });
 
@@ -204,7 +218,6 @@ app.get('/add-track', async function(req, res) {
 
 // power-ups can be enabled
 // kick it means you get to move any song to top of the queue
-
 
 app.get(
 	'/auth/spotify',
