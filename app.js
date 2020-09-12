@@ -91,9 +91,33 @@ app.get('/', function(req, res) {
 	res.render('hello.html');
 });
 
-// app.get('/:party_id/:user_id', function(req, res) {
-// 	res.render('hello.html');
-// });
+app.get('/test', async function(req, res) {
+	const spotifyApi = new SpotifyWebApi({
+		accessToken: req.user.accessToken,
+		user: req.user,
+	});
+
+	// Get tracks in a playlist
+	// const getPlaylists = await spotifyApi.getUserPlaylists(req.user.id);
+
+	const getSpecificPlaylist = await spotifyApi.getPlaylist(
+		req.session.playlistID || '1DVLNQ0AoUnf7CkzMXTmLZ',
+	);
+	console.log(req.session.playlistID, 'why wont you');
+	const getCurrentTrack = await spotifyApi.getMyCurrentPlaybackState({});
+	console.log(getSpecificPlaylist.body.tracks.items, 'what we got?');
+	res.render('index.html', {
+		user: req.user,
+		playlistID: getSpecificPlaylist.body.uri,
+		// turnary or otherwise if image show it if not default image
+		playlistsName: getSpecificPlaylist.body.name,
+		playlistsImage: getSpecificPlaylist.body.images[0]
+			? getSpecificPlaylist.body.images[0].url
+			: 'https://via.placeholder.com/550',
+		playlist: getSpecificPlaylist.body.tracks.items,
+		// currentTrack: getCurrentTrack.body.item.name,
+	});
+});
 
 app.get('/kicking-it', async function(req, res) {
 	const spotifyApi = new SpotifyWebApi({
